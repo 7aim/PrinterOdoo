@@ -174,10 +174,28 @@ def format_receipt_escpos(receipt_data):
     formatted += "Tel: " + receipt_data.get("phone", "012-345-67-89") + "\n"
     formatted += "-" * 32 + "\n"
     
+    # Invoice Type (for sales/purchase invoices)
+    if receipt_data.get("invoice_type"):
+        formatted += CENTER + BOLD_ON
+        formatted += receipt_data.get("invoice_type", "") + "\n"
+        formatted += BOLD_OFF + "-" * 32 + "\n"
+    
+    # Customer/Vendor info (for invoices)
+    if receipt_data.get("customer"):
+        formatted += LEFT
+        formatted += f"Müştəri: {receipt_data.get('customer', '')}\n"
+    elif receipt_data.get("vendor"):
+        formatted += LEFT
+        formatted += f"Təchizatçı: {receipt_data.get('vendor', '')}\n"
+    
     # Date/Time
     formatted += LEFT
-    formatted += f"Tarix: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n"
-    formatted += f"Qəbz №: {receipt_data.get('receipt_no', '001')}\n"
+    if receipt_data.get("date") and receipt_data.get("time"):
+        formatted += f"Tarix: {receipt_data.get('date')} {receipt_data.get('time')}\n"
+    else:
+        formatted += f"Tarix: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n"
+        
+    formatted += f"Sənəd №: {receipt_data.get('receipt_no', '001')}\n"
     formatted += "-" * 32 + "\n"
     
     # Items
@@ -196,13 +214,14 @@ def format_receipt_escpos(receipt_data):
     # Total
     formatted += BOLD_ON
     total_amount = receipt_data.get("total", 0)
-    formatted += f"{'CƏMİ:':<20} {total_amount:>10.2f} AZN\n"
+    currency = receipt_data.get("currency", "AZN")
+    formatted += f"{'CƏMİ:':<20} {total_amount:>10.2f} {currency}\n"
     formatted += BOLD_OFF
     
     # Footer
     formatted += "\n" + CENTER
-    formatted += "Təşəkkür edirik!\n"
-    formatted += "Yenidən gələcəyinizi gözləyirik\n"
+    footer = receipt_data.get("footer", "Təşəkkür edirik!")
+    formatted += f"{footer}\n"
     formatted += "\n\n" + CUT
     
     return formatted

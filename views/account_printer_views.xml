@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Extend Invoice Form View -->
+        <record id="view_account_move_form_inherit_printer" model="ir.ui.view">
+            <field name="name">account.move.form.inherit.printer</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_print_invoice" 
+                            string="Print Invoice" 
+                            type="object" 
+                            class="btn-secondary"/>
+                            <!-- invisible="['|', ('move_type', 'not in', ['out_invoice', 'in_invoice']), ('state', 'not in', ['posted'])]" -->
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
