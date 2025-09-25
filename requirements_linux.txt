@@ -1,0 +1,5 @@
+# Requirements for Linux Server (Odoo side)
+requests>=2.25.0
+# Note: odoo already includes these, but for standalone testing:
+# python-dateutil>=2.8.0
+# lxml>=4.6.0

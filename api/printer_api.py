@@ -6,6 +6,12 @@ import win32con
 from typing import List, Dict
 import uvicorn
 from datetime import datetime
+import logging
+import socket
+
+# Logging setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Custom POS Printer API")
 
@@ -228,8 +234,22 @@ def format_receipt_escpos(receipt_data):
 
 @app.get("/status")
 async def get_status():
-    """API statusu"""
-    return {"status": "running", "version": "1.0.0"}
+    """API statusu və network məlumatları"""
+    hostname = socket.gethostname()
+    try:
+        local_ip = socket.gethostbyname(hostname)
+    except:
+        local_ip = "unknown"
+    
+    return {
+        "status": "running", 
+        "version": "1.0.0",
+        "hostname": hostname,
+        "local_ip": local_ip,
+        "port": 8765,
+        "printers_available": len(PrinterService.get_printers()),
+        "timestamp": str(datetime.now())
+    }
 
 @app.get("/test")
 async def test_endpoint():
@@ -241,4 +261,19 @@ async def test_endpoint():
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8765)
+    # Network information
+    hostname = socket.gethostname()
+    try:
+        local_ip = socket.gethostbyname(hostname)
+        print(f"🖥️  Computer: {hostname}")
+        print(f"🌐 Local IP: {local_ip}")
+        print(f"📡 API URLs:")
+        print(f"   - Local: http://localhost:8765")
+        print(f"   - Network: http://{local_ip}:8765")
+        print(f"🖨️  Available Printers: {len(PrinterService.get_printers())}")
+        print("="*50)
+    except Exception as e:
+        print(f"Network info error: {e}")
+    
+    # Network üçün bütün IP address-lərə açıq
+    uvicorn.run(app, host="0.0.0.0", port=8765, log_level="info")
